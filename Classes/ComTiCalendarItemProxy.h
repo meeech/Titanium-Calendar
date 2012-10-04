@@ -23,6 +23,8 @@
 -(void)setStartDate:(id)value;
 -(id)endDate;
 -(void)setEndDate:(id)value;
+-(id)notes;
+-(void)setNotes:(id)value;
 
 
 

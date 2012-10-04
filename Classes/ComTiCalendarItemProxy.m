@@ -25,6 +25,7 @@
 		[self setEndDate:event.endDate];
 		[self replaceValue:event.location forKey:@"location" notification:NO];
 		[self replaceValue:event.eventIdentifier forKey:@"eventIdentifier" notification:NO];
+        [self setNotes:event.notes];
 	}
 	return self;
 }
@@ -103,7 +104,18 @@
 	[self replaceValue:value forKey:@"edate" notification:NO];
 }
 
+-(id)notes
+{
+    return [self valueForUndefinedKey:@"notes"];
+}
 
+-(void)setNotes:(id)value
+{
+	ENSURE_TYPE_OR_NIL(value,NSString);
+	// make sure to store the value into dynprops as well, this
+	// normally is set during the createFooBar({title:"blah"});
+	[self replaceValue:value forKey:@"notes" notification:NO];
+}
 
 // Surely there has to be a way to hook into the create....({}) call ?
 -(NSDictionary *)saveEvent:(id)obj
@@ -111,9 +123,10 @@
 	EKEventStore *eventStore = [[[EKEventStore alloc] init] autorelease];
 	EKEvent *_event = [EKEvent eventWithEventStore:eventStore];
 	_event.title = [self valueForUndefinedKey:@"title"];
-	_event.startDate = [self valueForUndefinedKey:@"sdate"];	
-	_event.location = [self valueForUndefinedKey:@"location"];	
-	_event.endDate = [self valueForUndefinedKey:@"edate"];	
+	_event.startDate = [self valueForUndefinedKey:@"sdate"];
+	_event.location = [self valueForUndefinedKey:@"location"];
+	_event.endDate = [self valueForUndefinedKey:@"edate"];
+    _event.notes = [self valueForUndefinedKey:@"notes"];
     if ([self valueForUndefinedKey:@"edate"] == nil) {
 		_event.endDate = [[[NSDate alloc] initWithTimeInterval:1200 sinceDate:_event.startDate] autorelease];
 	}
