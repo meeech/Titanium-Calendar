@@ -12,8 +12,9 @@
 }
 
 -(id)initWithEvent:(EKEvent *)event;
--(NSDictionary *)saveEvent:(id)obj;
+-(void)saveEvent:(id)obj;
 -(NSDictionary *)deleteEvent:(id)obj;
+-(void)saveEvent:(id)obj withStore:(EKEventStore*)eventStore;
 
 
 // setters and getters

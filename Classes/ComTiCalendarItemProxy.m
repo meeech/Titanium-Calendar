@@ -11,6 +11,16 @@
 #import <EventKit/EventKit.h>
 #import <Foundation/NSFormatter.h>
 
+/*
+ *  System Versioning Preprocessor Macros
+ */
+
+#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
+#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+
 
 
 @implementation ComTiCalendarItemProxy
@@ -117,10 +127,28 @@
 	[self replaceValue:value forKey:@"notes" notification:NO];
 }
 
+
 // Surely there has to be a way to hook into the create....({}) call ?
--(NSDictionary *)saveEvent:(id)obj
+-(void)saveEvent:(id)obj
 {
-	EKEventStore *eventStore = [[[EKEventStore alloc] init] autorelease];
+    EKEventStore *eventStore = [[[EKEventStore alloc] init] autorelease];
+    //TODO: is this the best way of doing this branching?
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"6.0"))
+    {
+        [eventStore requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error) {
+            if (granted)
+            {
+                [self saveEvent:obj withStore:eventStore];
+            }
+        }];
+    }
+    else
+        [self saveEvent:obj withStore:eventStore];
+}
+
+-(void)saveEvent:(id)obj withStore:(EKEventStore*)eventStore
+{
+    
 	EKEvent *_event = [EKEvent eventWithEventStore:eventStore];
 	_event.title = [self valueForUndefinedKey:@"title"];
 	_event.startDate = [self valueForUndefinedKey:@"sdate"];
@@ -130,18 +158,20 @@
     if ([self valueForUndefinedKey:@"edate"] == nil) {
 		_event.endDate = [[[NSDate alloc] initWithTimeInterval:1200 sinceDate:_event.startDate] autorelease];
 	}
-	
-    [_event setCalendar:[eventStore defaultCalendarForNewEvents]];
+    [_event setCalendar: [eventStore defaultCalendarForNewEvents]];
+    
     NSError *err = nil;
-    [eventStore saveEvent:_event span:EKSpanThisEvent error:&err];   
-	BOOL status = (err == nil) ? TRUE : FALSE;
-	NSString *errStr = (err != nil) ? [err localizedDescription] : @"none";
-	
-	NSDictionary *tmp = [[[NSDictionary alloc] initWithObjectsAndKeys: errStr, @"error", 
-													   NUMBOOL(status), @"status",
-													   _event.eventIdentifier, @"eventId",
-													   nil] autorelease];
-	return tmp;
+    [eventStore saveEvent:_event span:EKSpanThisEvent error:&err];
+    BOOL status = (err == nil) ? TRUE : FALSE;
+    NSString *errStr = (err != nil) ? [err localizedDescription] : @"none";
+    
+    if ([self _hasListeners:@"save_event_result"]) {
+        NSDictionary *tmp = [[[NSDictionary alloc] initWithObjectsAndKeys:  errStr, @"error",
+                                                                            NUMBOOL(status), @"status",
+                                                                            _event.eventIdentifier, @"eventId",
+                                                                        nil] autorelease];
+        [self fireEvent:@"save_event_result" withObject:tmp];
+    }
 }
 
 
