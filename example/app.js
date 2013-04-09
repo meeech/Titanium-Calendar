@@ -1,6 +1,6 @@
 // V 0.1 of Calendar - Private Beta
 // Apache GPL v2 by S.Telford
-// UI based off of code by TinyFool - http://iphonecal.googlecode.com/svn/trunk/ 
+// UI based off of code by TinyFool - http://iphonecal.googlecode.com/svn/trunk/
 
 // open a single window
 var window = Ti.UI.createWindow({
@@ -15,10 +15,10 @@ var Calendar = require('com.ti.calendar');
 //var ev = Calendar.createItem({title:"Stefs Event", startDate: new Date()});
 var evEndDate = new Date();
 evEndDate.setHours(evEndDate.getHours()+3);
-var ev = Calendar.createItem({title:"Stefs Event", startDate: new Date(), 
+var ev = Calendar.createItem({title:"Stefs Event", startDate: new Date(),
                               endDate: evEndDate, location: "Bob's WareHouse"});
 
-// events are NOT saved, until you invoke the saveEvent on them. 
+// events are NOT saved, until you invoke the saveEvent on them.
 // Until that point, they live solely in memory.
 var p = ev.saveEvent();
 // Be sure to check the status for true/false on save.
@@ -35,7 +35,9 @@ var o = Calendar.findEvents({ start: startDate, end: endDate });
 
 // because we can only pass back a dictionary, we lose the sort order
 // we have to do this to get it back
-var keys = [];
+var keys = []
+  , key
+  ;
 for (key in o) {
    keys.push(key);
 }
@@ -58,14 +60,13 @@ for (key in keys) {
 
 
 // create the calendar display
-var foo = Calendar.createView({color:"lightgray", events: o,
-    eventsSelected: function(e) 
-    {
-      for (key in e.events) {
-        alert(e.events[key].title+" starts at "+e.events[key].startDate+" ends at "+e.events[key].endDate+" at the location "+e.events[key].location+" and has id of "+e.events[key].eventIdentifier);
-      }
-    }
-});
+var foo = Calendar.createView({
+  color:"lightgray"
+  , eventsSelected: function(e) {
+    console.log('->Date Selected');
+    console.log(JSON.stringify(e));
+  }
+  });
 
 // Display the Calendar Widget/View now.
 window.add(foo);
