@@ -82,10 +82,10 @@
 
 -(void)setEventsSelected_:(id)args
 {
-	ENSURE_SINGLE_ARG(args,KrollCallback);
-	id _ev = args; 
+	ENSURE_SINGLE_ARG(args,KrollWrapper);
+	KrollWrapper * wrapper = (KrollWrapper *)args;
 	RELEASE_TO_NIL(eventsSelectedCallback);
-	eventsSelectedCallback = [_ev retain];
+	eventsSelectedCallback = [[KrollCallback alloc] initWithCallback:wrapper.jsobject thisObject:nil context:[wrapper.bridge krollContext]];
 }
  
  
