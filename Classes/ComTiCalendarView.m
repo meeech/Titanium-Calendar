@@ -124,9 +124,15 @@
 													  selectDate.year, selectDate.month, selectDate.day] ];
 
 		NSArray *tmpDates = [self.events objectForKey: date];
-		// NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys: tmpDates, @"events", nil];
-		NSDictionary *theDate = [NSDictionary dictionaryWithObject: date forKey:@"selected"];
-		[self.proxy _fireEventToListener:@"eventsSelected" withObject:theDate listener: eventsSelectedCallback thisObject: nil];
+		NSDictionary *selectedDate = [NSDictionary dictionaryWithObjectsAndKeys:
+				date, @"date",
+				NUMINT(selectDate.year), @"year",
+				NUMINT(selectDate.month), @"month",
+				NUMINT(selectDate.day), @"day", nil];
+
+		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:
+			selectedDate, @"selectedDate", tmpDates, @"events", nil];
+		[self.proxy _fireEventToListener:@"eventsSelected" withObject:data listener: eventsSelectedCallback thisObject: nil];
 	}
 };
 
