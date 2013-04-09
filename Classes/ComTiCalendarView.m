@@ -18,22 +18,22 @@
 @synthesize events, eventsSelectedCallback;
 
 -(void)dealloc {
-	RELEASE_TO_NIL(cal); 
+	RELEASE_TO_NIL(cal);
 	RELEASE_TO_NIL(eventsSelectedCallback);
 	RELEASE_TO_NIL(events);
 	[super dealloc];
 }
 
--(UIView *)cal 
+-(UIView *)cal
 {
 	if (cal==nil) {
-		cal = [[TdCalendarView alloc] initWithFrame:[self frame]]; 
+		cal = [[TdCalendarView alloc] initWithFrame:[self frame]];
 		[(TdCalendarView *)cal setCalendarViewDelegate: self];
 		[self addSubview:cal];
-	}	
+	}
 	return cal;
 }
- 
+
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds {
 	if (cal!=nil) {
@@ -41,7 +41,7 @@
 	}
 }
 
-// handy little function for making a date sans time 
+// handy little function for making a date sans time
 -(NSDate *)dateWithNoTime:(NSDate *)dateTime {
 	NSCalendar *calendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
 	NSDateComponents *components = [calendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit
@@ -53,7 +53,7 @@
 
 
 -(void)setEvents_:(id)theEvents {
-	if (theEvents != nil) {		
+	if (theEvents != nil) {
 		self.events = [[[NSMutableDictionary alloc] init] autorelease];
 		for (NSString *key in theEvents) {
 			ComTiCalendarItemProxy *event = [theEvents objectForKey:key];
@@ -73,8 +73,8 @@
 }
 
 -(void)setColor_:(id)color {
-	UIColor *c = [[TiUtils colorValue:color] _color]; 
-	UIView *s = [self cal]; 
+	UIColor *c = [[TiUtils colorValue:color] _color];
+	UIView *s = [self cal];
 	s.backgroundColor = c;
 }
 
@@ -87,8 +87,8 @@
 	RELEASE_TO_NIL(eventsSelectedCallback);
 	eventsSelectedCallback = [[KrollCallback alloc] initWithCallback:wrapper.jsobject thisObject:nil context:[wrapper.bridge krollContext]];
 }
- 
- 
+
+
 #pragma mark -
 #pragma mark TdCalendarViewDelegateMethods
 
@@ -98,9 +98,9 @@
 	// a redraw shouldn't call this 30+ times .. this happens when we click around
 	// the calendar widget jst selecting random days .. boo
 	NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-	dateFormatter.dateFormat = @"yyyy-MM-dd 12:00:00";	
+	dateFormatter.dateFormat = @"yyyy-MM-dd 12:00:00";
 	NSDate *date = [dateFormatter dateFromString:[NSString stringWithFormat: @"%d-%d-%d", day.year, day.month, day.day] ];
-		
+
 	if ([self.events objectForKey: date] != nil) {
 		return -1;
 	}
@@ -119,13 +119,14 @@
 {
 	if (eventsSelectedCallback) {
 		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-		dateFormatter.dateFormat = @"yyyy-MM-dd 12:00:00";	
-		NSDate *date = [dateFormatter dateFromString:[NSString stringWithFormat: @"%d-%d-%d", 
+		dateFormatter.dateFormat = @"yyyy-MM-dd 12:00:00";
+		NSDate *date = [dateFormatter dateFromString:[NSString stringWithFormat: @"%d-%d-%d",
 													  selectDate.year, selectDate.month, selectDate.day] ];
-		
+
 		NSArray *tmpDates = [self.events objectForKey: date];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys: tmpDates, @"events", nil];
-		[self.proxy _fireEventToListener:@"eventsSelected" withObject:event listener: eventsSelectedCallback thisObject: nil];
+		// NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys: tmpDates, @"events", nil];
+		NSDictionary *theDate = [NSDictionary dictionaryWithObject: date forKey:@"selected"];
+		[self.proxy _fireEventToListener:@"eventsSelected" withObject:theDate listener: eventsSelectedCallback thisObject: nil];
 	}
 };
 
