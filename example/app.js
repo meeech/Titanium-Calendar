@@ -12,11 +12,11 @@ var Calendar = require('com.ti.calendar');
 // Print out the debug message if you are unsure
 //Ti.API.info("module is => " + Calendar);
 
-//var ev = Calendar.createItem({title:"Stefs Event", startDate: new Date()});
-var evEndDate = new Date();
-evEndDate.setHours(evEndDate.getHours()+3);
-var ev = Calendar.createItem({title:"Stefs Event", startDate: new Date(),
-                              endDate: evEndDate, location: "Bob's WareHouse"});
+var ev = Calendar.createItem({title:"Stefs Event", startDate: new Date()});
+// var evEndDate = new Date();
+// evEndDate.setHours(evEndDate.getHours()+3);
+// ev = Calendar.createItem({title:"Stefs Event", startDate: new Date(),
+//                               endDate: evEndDate, location: "Bob's WareHouse"});
 
 // events are NOT saved, until you invoke the saveEvent on them.
 // Until that point, they live solely in memory.
@@ -47,8 +47,6 @@ for (key in keys) {
   Ti.API.info(o[keys[key]].title+" starts at "+o[keys[key]].startDate+" and has id of "+o[keys[key]].eventIdentifier);
 }
 
-
-
 // Here we will delete all the events
 /*
 for (key in keys) {
@@ -57,11 +55,10 @@ for (key in keys) {
 }
 */
 
-
-
 // create the calendar display
 var foo = Calendar.createView({
   color:"lightgray"
+  , events: o
   , eventsSelected: function(e) {
     console.log('->Date Selected');
     console.log(JSON.stringify(e));
